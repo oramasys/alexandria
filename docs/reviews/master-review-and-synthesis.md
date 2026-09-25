@@ -254,4 +254,4 @@ The table below provides a unified ledger of what has been built versus what rem
 - **Zero-leak privacy** over naive exposure; and
 - **The Amplifier Principle** as our permanent ethical North Star,
 
-the architecture stands ready to scale from local multi-agent coding swarms into an enterprise-grade, intergalactic, space-faring computational infrastructure.
+the architecture stands ready to scale from local multi-agent coding swarms into an enterprise-grade, multi-node computational infrastructure.
