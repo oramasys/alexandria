@@ -1,9 +1,16 @@
 > **Alexandria ingest:** 2026-09-25 · docs-only plan copy · portable-memory scrubbed.
+>
+> **SUPERSEDED 2026-09-27** by [`oramasys/perpetua-core#7`](https://github.com/oramasys/perpetua-core/pull/7)
+> (merge `c0795bcea810a9f7cec19e50a617bba91fe5e33d`). Decision **C0 `REJECT_CORE_TELOS_DEP`**:
+> Core takes **no** Telos dependency. Health probing via Telos happens in
+> `oramasys/oramasys` composition, not inside `perpetua-core`. Do not execute
+> the dependency or `health_probe()` rewrite below.
 
 # perpetua-core: Route `health_probe()` Through Telos
 
-**Status:** plan, about to be executed immediately after this document.
-**Scope:** `oramasys/perpetua-core` only. No other repo's code changes.
+**Status:** SUPERSEDED — historical plan retained for provenance; do not execute.
+**Superseded by:** `oramasys/perpetua-core#7` merge `c0795bce` (C0 `REJECT_CORE_TELOS_DEP`).
+**Scope (historical):** `oramasys/perpetua-core` only. No other repo's code changes.
 **Repo state confirmed before writing this plan:** cloned and read directly,
 not assumed — `perpetua-core` has zero open PRs; `oramasys/oramasys` imports
 `BackendRegistry`/`select_backend` from it but never calls the vulnerable
@@ -58,12 +65,18 @@ allowlists threaded through from the caller) that was more complex for no
 added safety here, since the transport-level restriction already prevents
 the one thing that matters — reaching outside the local network.
 
-## 3. Implementation
+## 3. Implementation (historical — rejected)
 
-1. **Add `telos` as a `perpetua-core` dependency** in `pyproject.toml`
+> **Rejected by C0.** Do **not** add `oramasys-telos` / `telos` as a
+> `perpetua-core` dependency. Core stays policy-free and transport-free;
+> composition owns Telos-backed probing. The numbered steps below are the
+> original 2026-09-25 proposal, kept only as an audit trail.
+
+1. **~~Add `telos` as a `perpetua-core` dependency~~** in `pyproject.toml`
    (same-language, same-org package — matches how `oramasys/oramasys`
    consumes Telos as a direct Python dependency for its Gateway dialer,
    not the JSONL bridge, which exists for non-Python consumers only).
+   **C0 forbids this import on Core.**
 
 2. **Rewrite `health_probe()`** to call `telos.transport.request()`
    instead of raw `httpx`:

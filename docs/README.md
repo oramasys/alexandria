@@ -24,7 +24,7 @@ migration is explicitly scheduled; Alexandria receives curated copies.
 ### Plans
 
 - [`plans/v1-to-v2-pr-body-migration.md`](plans/v1-to-v2-pr-body-migration.md) — PR reporting tools → `oramasys/oramasys` (comment-first)
-- [`plans/perpetua-core-health-probe-telos-migration.md`](plans/perpetua-core-health-probe-telos-migration.md) — route `health_probe()` through Telos
+- [`plans/perpetua-core-health-probe-telos-migration.md`](plans/perpetua-core-health-probe-telos-migration.md) — SUPERSEDED by perpetua-core #7 (C0 `REJECT_CORE_TELOS_DEP`); historical `health_probe()` plan retained
 
 ### Reviews
 
