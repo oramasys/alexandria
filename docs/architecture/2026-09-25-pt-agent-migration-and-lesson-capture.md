@@ -5,12 +5,13 @@
 **Document Type:** Strategic Migration Map, Architectural Contract, and Provenance Synthesis  
 **Authoring Stack:** Antigravity / Gemini 3.8 Flash & Oramasys Methodology  
 **Repositories Involved:**
+
 - `diazMelgarejo/Perpetua-Tools` (v1 L2 Runtime & Host Monorepo)
 - `diazMelgarejo/orama-system` (v1 L3 Stateless Methodology & Specification Authority)
 - `oramasys/perpetua-core` (v2 Pure Microkernel Execution Graph)
 - `oramasys/oramasys` (v2 Application & Service Composition)
 - `oramasys/agate` (v2 Hardware Affinity & Topology Registry)
-- `oramasys/anamnesis` (Tentative v2 Private Runtime Memory Backend)
+- `oramasys/anamnesis` (v2 epistemic memory: ledger, pre-write gate protocol, promotion)
 - `codejunkie99/agentic-stack` (Upstream Vendor Submodule)
 **Date:** 2026-09-25  
 **Canonical Anchors in Source Repos:**
@@ -29,10 +30,12 @@
 Throughout the evolution of the **Perpetua-Tools (PT)** and **orama-system** codebases (v1), Perpetua-Tools acted as an integration monorepo hosting both runtime infrastructure and a portable cognitive brain. Within PT, the `.agent/` directory served as the central nerve center—housing episodic memory, semantic lessons, harness-neutral hooks, candidate graduation workflows, and vendor adaptations.
 
 However, the architecture faced two structural tensions:
+
 1. **The Monorepo Congestion / Submodule Bleed:** PT vendored `codejunkie99/agentic-stack` under `vendor/agentic-stack` while heavily customizing its tools (`learn.py`, `recall.py`, hooks) via an in-tree overlay. Direct upgrades risked clobbering in-house adaptations.
 2. **The Asymmetric Lesson Capture Authority:** `orama-system` originally maintained a naive direct-append script (`capture_lesson.py` writing to `tasks/lessons.md`), creating split-brain divergence against PT's canonical `lessons.jsonl`. Furthermore, an incident on 2026-08-24 (where an unintended tree-API publication dropped 1,881 files / 270k lines) highlighted the critical need for strict whole-file deletion guards and explicit memory authority boundaries.
 
 This document synthesizes the historical and locked architectural design for:
+
 - How the **`.agent/` directory, Agentic-Stack overlay, and PT harness** unbundle into the **`oramasys/*` v2** ecosystem.
 - How **lesson capture, candidate graduation, and weekly crystallization** operate across the v1 to v2 boundary without data loss or cognitive drift.
 
@@ -47,7 +50,7 @@ graph TD
         L3["L3 Methodology & Spec Authority: orama-system"]
         K["Kernel Primitive Execution: oramasys/perpetua-core"]
         H["Hardware Affinity Authority: oramasys/agate"]
-        M["Runtime Memory Authority: oramasys/anamnesis (Tentative)"]
+        M["Runtime Memory Authority: oramasys/anamnesis"]
     end
     L2 -->|"Supplies state & telemetry"| L3
     L3 -->|"Compiles GraphSpec"| K
@@ -59,9 +62,9 @@ graph TD
 | :--- | :--- | :--- | :--- |
 | **Development / System Lessons** | PT tracked `.agent/` Agentic-Stack | Continues as repository-development memory | Orama must not silently create a competing canonical log. |
 | **Capture Frontend** | `bin/orama-system/scripts/capture_lesson.py` | Same user-facing workflow / controller | Backends are explicit and fail closed when unavailable. |
-| **User / Runtime Evidence** | Not implemented in v1 | Tentative `oramasys/anamnesis` | Private by default; never substituted by a tracked fallback. |
+| **User / Runtime Evidence** | Not implemented in v1 | `oramasys/anamnesis` (ledger + gate + promotion) | Private by default; never substituted by a tracked fallback. |
 | **Cross-Project Memory** | PT bundle, internally scoped by context | User-level runtime bundle with project namespaces/tags | Project-specific evidence is not automatically general policy. |
-| **Candidate Promotion** | PT `learn.py`, `auto_dream.py`, human review | Weekly crystallization joins dev lessons & runtime evidence | Sanitize before commit and again immediately before push. |
+| **Candidate Promotion** | PT `learn.py`, `auto_dream.py`, human review | `oramasys/anamnesis` PromotionPipeline (candidate → reviewed → graduated); weekly crystallization still joins dev lessons & runtime evidence | Sanitize before commit and again immediately before push. |
 | **Publication & Sync** | Git / PR workflow | Same | `allow_automatic_push=false` by default; strict HITL gating. |
 
 ---
@@ -91,10 +94,10 @@ graph TD
 (Hardware Affinity, Compute Tier Specs, Model Registry)"]
         ORAMA_SPEC["diazMelgarejo/orama-system
 (Methodology Authority, GraphSpec, Evaluator Contracts)"]
-        ANAMNESIS["oramasys/anamnesis (Tentative)
-(Private Local Runtime Evidence & Observation Store)"]
+        ANAMNESIS["oramasys/anamnesis
+(Ledger, Pre-Write Gate Protocol, Promotion, Retrieval)"]
         MEM_SAT["Satellite: perpetua-memory (Provisional)
-(Reusable RRF, Embeddings, Episodic Engine)"]
+(Reusable RRF / embeddings only — not the ledger or gate)"]
     end
 
     PT_ORCH -.->|"MiniGraph & PerpetuaState"| CORE
@@ -115,8 +118,8 @@ graph TD
 | **`oramasys/agate`** | Hardware capability & affinity authority: `model_hardware_policy.yml`, GGUF quantization tiers, VRAM budgets, Apple Silicon vs CUDA constraints, capability routing. | **No** provider wire formats, application billing, or graph scheduling code. |
 | **`oramasys/oramasys`** | Application & service composition: FastAPI glass-window endpoints, user sessions, approved `GraphSpec` consumption, orchestration daemons, CLI tools. | Satellites and core must not depend on application code. |
 | **`diazMelgarejo/orama-system`** | Stateless specification & methodology authority: `GraphSpec`, `NodeSpec`, `EdgeSpec`, compiler/linter rules, March-of-Nines doctrine, verification/evaluator contracts (`mutator != evaluator`). | Does not host live state stores; targets `perpetua-core` without core importing upward. |
-| **`oramasys/anamnesis`** *(Tentative)* | Private local runtime memory: user interactions, local execution telemetry, gitignored private evidence, project-namespaced observations. | Never mixed into public git tracking by default. |
-| **`perpetua-memory`** *(Satellite)* | Reusable algorithmic memory engine: Reciprocal Rank Fusion (RRF), episodic embeddings, candidate graduation state-machine. | Decoupled from repo-specific `.agent` markdown files. |
+| **`oramasys/anamnesis`** | Epistemic memory authority: append-only provenance/audit ledger, Phylax-owned pre-write gate *protocol* (anamnesis owns the protocol surface; Phylax owns redaction policy), controlled promotion (`candidate` → `reviewed` → `graduated`), and read-side retrieval authorization. Matches `oramasys/anamnesis#1` and the master-review specialist table. | Does **not** own security admission/redaction policy (Phylax), runtime orchestration (`perpetua-core`), or endpoint/transport (Telos). |
+| **`perpetua-memory`** *(Satellite, provisional)* | Reusable ranking/retrieval algorithms only: Reciprocal Rank Fusion (RRF), episodic embeddings. | Does **not** own the ledger, admission gate, or promotion/graduation state-machine — those belong to `oramasys/anamnesis`. |
 
 ---
 
@@ -125,7 +128,9 @@ graph TD
 Per `Perpetua-Tools/.agent/memory/working/2026-07-16-agentic-stack-upstream-contribution-plan.md` and `orama-system/docs/v2/41-agentic-stack-gstack-gbrain-memory-blend.md`:
 
 ### 4.1 The Union-Blend Doctrine
+
 PT vendors `agentic-stack` at `vendor/agentic-stack` as a clean submodule pin (e.g., `00eda65c`). The customizations are **never committed into the submodule**. Instead, PT maintains a tracked blend state:
+
 - `.agent/.agentic-stack-blend-state.json` catalogs clean patches applied on top of the vendor skeleton (UTF-8 encoding guards, context-manager fixes, `_append_episodic_mirror()` in `learn.py`, path-hygiene sanitizers).
 - **Mandatory Dry-Run Gating:** Upgrades are executed via `python3 -m harness_manager.cli upgrade --dry-run "$PT_ROOT"` to inspect file deltas before applying.
 - **External Brain Blockade:** Upstream `codejunkie99/brain` integrations (`brain_bridge.py`) are deliberately blocked in favor of **Gbrain (gstack pgvector + FTS)** until a dual-backend multiplexer is formally reviewed.

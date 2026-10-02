@@ -14,6 +14,7 @@
 ## Executive Summary: The State of the Architecture
 
 Across 2026, the architecture underwent a profound transformation, moving through four major evolutionary epochs:
+
 1. **Ad-Hoc Scripting & Local Hacks (v1):** Monolithic Python scripts in `Perpetua-Tools` and `orama-system` handling model discovery, routing, and prompt formatting.
 2. **The Defense-in-Depth Crisis:** Confronting 2025–2026 SSRF CVEs (DNS rebinding, TOCTOU, redirect hijacking, AWS IMDS `169.254.169.254` credential exfiltration) which proved that pre-flight application string validation alone is fundamentally flawed.
 3. **The Micro-Kernel & Observability Reconstruction:** Reconciling Kimi's 99-line state-machine engine with Claude's typed `PerpetuaState` runtime; establishing real OpenTelemetry W3C trace emission while isolating local rich Periscope trajectories.
@@ -76,14 +77,17 @@ graph TD
 ## 2. Foundational Governance & Ethical Doctrine
 
 ### 2.1 The Amplifier Principle (Non-Negotiable Core)
+
 > *"AI amplifies human intent. It does not replace human judgment, absorb human accountability, or dissolve human moral agency."*
 
 1. **Epistemic vs. Authorization Boundary:** Autonomous agents may explore, gather evidence, draft analyses, and run simulations. Agents **never self-authorize** destructive actions, external communications, git force operations, financial transactions, or persistent always-on swarms.
-2. **Cryptographic Authorization:** Consequential decisions require real-world certified identity (GPG/PGP signatures or OIDC tokens) bound to an HMAC-validated `approval_token`.
+2. **Cryptographic Authorization:** Consequential decisions require real-world certified identity bound to an HMAC-validated `approval_token`. Offline GPG/PGP signatures are sufficient. OIDC tokens are optional and never required.
 3. **The 24-Hour Expiration Rule:** Always-on background agents accumulate context drift. Any agent operating autonomously expires after 24 hours unless an operator actively reviews and re-signs its lease.
 
 ### 2.2 MAESTRO Threat Modeling & The 4-Gate Framework
+
 Modeled on OWASP GenAI Security Project standards:
+
 - **Gate 0: Epistemic Qualification** — Workflow qualification filter requiring at least 4 of 5 green criteria before automation.
 - **Gate 1: Pre-Flight Safety & Input Sanitization** — Telos and Phylax verification of endpoints, tools, and prompts.
 - **Gate 2: Cryptographic Scope & Budget Reservation** — Atomic reservation of worst-case compute spend in durable SQLite ledgers before asynchronous provider I/O.
@@ -110,7 +114,8 @@ graph TD
     EXEC -->|type(exc).__name__ == 'Interrupt'| INTERRUPT["state.merge(status='interrupted')"]
 ```
 
-### Reconciled Engine Invariants:
+### Reconciled Engine Invariants
+
 1. **Single Execution Scheduler (`asteps`):** `CompiledGraph` is the sole engine runtime. Streaming, tracing, checkpointing, and debugging plugins **must not** duplicate the traversal loop by inspecting private `_nodes` or `_edges`. They consume the public `asteps()` generator.
 2. **Dynamic Awaitability:** The engine invokes the node first, then inspects the result using `inspect.isawaitable()`. This natively supports synchronous functions, `async def` functions, callable objects with `async __call__` (like `ToolNode`), and synchronous functions returning awaitables.
 3. **Strict Dict-Delta Contract:** Nodes must return a dictionary delta. Returning `None` or a falsey non-dict is treated as an explicit contract failure (`TypeError`), preventing silent logic bugs.
@@ -143,6 +148,7 @@ Security follows the **Three-Layer Floor** where each layer owns an independent 
 ```
 
 ### The Split-Identity Rule
+
 A common vulnerability in connection-pooling HTTP libraries is mutating shared `PoolManager` state (`self.poolmanager.connection_pool_kw.update()`). The architecture resolves this by setting the connection pool's destination host to the **pinned IP literal**, while routing the original domain name strictly through TLS SNI (`server_hostname`) and the HTTP `Host:` header via `build_connection_pool_key_attributes()`.
 
 ---
@@ -163,7 +169,8 @@ graph LR
     end
 ```
 
-### Observability Invariants:
+### Observability Invariants
+
 1. **Real OpenTelemetry SDK:** Eliminates custom pseudo-OTLP JSON forwarders. Remote telemetry uses official `opentelemetry-api` and `opentelemetry-exporter-otlp-proto-http` packages.
 2. **Two-Tier Egress Cardinality:**
    - `egress.validation`: Emitted per DNS/socket validation attempt (measures `validation_ms`, logs `deny_reason`).
@@ -178,7 +185,7 @@ To guarantee cost-effective, high-reliability execution, models are routed throu
 
 | Tier | Engine / Model | Cost (In / Out per 1M) | Core Roles |
 | :---: | :--- | :---: | :--- |
-| **Tier 0–4** | Local Models (`glm-5.1:cloud`, `Qwen3.5-9B-MLX`, `Qwen3.5-27B-Opus-Distilled`) | **$0.00** | Local coding, syntax linting, unit testing, initial drafting, internal reasoning. |
+| **Tier 0–4** | Local-first models (e.g. `Qwen3.5-9B-MLX`, `Qwen3.5-27B-Opus-Distilled` on operator-local inference) | **$0.00** | Local coding, syntax linting, unit testing, initial drafting, internal reasoning. Cloud-tagged ids such as `glm-5.1:cloud` are not a free local tier. |
 | **Tier 5A** | `google/gemini-3.7-flash` (via Perplexity Agent API) | **$0.375 / $1.875** | Massive context ingestion (1M window), subagent parallel research, fast code transformation. |
 | **Tier 5B** | `xai/grok-4.6` (via Perplexity Agent API) | **$2.00 / $6.00** | Real-time world knowledge, live market/financial pulse, contrarian critique, deep reasoning. |
 | **Tier 5C** | `grok-4.6` (Direct xAI Fallback) | **$2.00 / $6.00** | Fallback if Perplexity Agent API is offline. Requires explicit `XAI_API_KEY`. |
@@ -187,6 +194,7 @@ To guarantee cost-effective, high-reliability execution, models are routed throu
 | **Tier 6C (Special)** | **`Claude Fable 5.1`** (`claude-fable-5-1`) | **Usage Credits ($10 / $50)** | **Credit-Gated Escalation:** Long-horizon frontier challenges. Permitted **ONLY** under explicit human request/approval and when budget and usage credits are verified. |
 
 ### The 199k Token Cliff Guard
+
 Both Perplexity and xAI double token pricing across the **entire request** ($4.00 / $12.00) if prompt input reaches 200,000 tokens. The `cost_guard.py` engine issues a hard warning at 180,000 tokens and automatically rejects, splits, or requires human authorization for requests exceeding 199,000 tokens.
 
 ---
@@ -205,10 +213,11 @@ flowchart TD
     Query -->|Verified & Within Expiry| Context["Context Injection into Agent State"]
 ```
 
-### Memory Governance Invariants:
+### Memory Governance Invariants
+
 1. **Mandatory Production Admission:** `Ledger.secure(gate=...)` is enforced in production; `gate=None` is restricted to isolated unit tests.
-2. **Tamper-Evident Hash Chain:** Records include `record_hash` and `previous_record_hash` using $H_n = 	ext{SHA256}(	ext{canonical\_record}_n \parallel H_{n-1})$.
-3. **Trust Tiers Distinct from Lifecycle States:** Lifecycle states (`candidate`, `reviewed`, `graduated`) are orthogonal to trust classifications (`untrusted`, `screened`, `trusted`, `restricted`, `expired`).
+2. **Tamper-Evident Hash Chain:** Records include `record_hash` and `previous_record_hash` using $H_n = \text{SHA256}(\text{canonical\_record}_n \parallel H_{n-1})$.
+3. **Trust Tiers Distinct from Lifecycle States:** Lifecycle states (`candidate`, `reviewed`, `graduated`, `rejected`) are orthogonal to retrieval trust tiers as implemented in `oramasys/anamnesis#3` (`untrusted`, `internal`, `verified`). Graduation never implies trust.
 4. **Read-Side Policy Check:** Memory re-checks validity, repository scope, and expiration at retrieval time before context injection.
 
 ---
@@ -238,9 +247,9 @@ The table below provides a unified ledger of what has been built versus what rem
 | **OTel Runtime Producer** | `PT/src/observability/runtime.py` | 🟢 Egress event bridge; OTLP HTTP/protobuf exporter; non-blocking delivery. | Deploy HTTPS collector and run `python -m src.observability.smoke`. |
 | **Periscope Local Sink** | `PT/orchestrator/periscope_adapter.py` | 🟢 Atomic descriptor-relative writes; `internal_only` privacy boundary enforced. | Configure `openclaw_dirs` in desktop UI to point to local state root. |
 | **Coordination Bias Sentinel** | `PT/orchestrator/coordination/` | 🟢 Bounded SQL; `pstdev` dispersion; requires $\ge 3$ distinct agent IDs; advisory-only. | None; operational in PR #369 / #372. |
-| **Telos Authority** | `oramasys/telos` | 🟢 Standalone repo under Apache-2.0; Gate 1 behavior vectors; dedicated dialer. | Complete `perpetua-core` `health_probe()` migration to route through Telos. |
-| **Anamnesis Memory** | `oramasys/anamnesis` | 🟡 Foundation PR #1 merged (in-memory ledger, gate protocol, promotion states). | Implement PR #2 (SQLite hash-chain backend) and PR #4 (read-side retrieval gate). |
-| **PR Reporting Tooling** | `oramasys/oramasys` | 🟡 Plan completed (`v1-to-v2-pr-body-migration-plan.md`). | Implement `report_pr.py` (comment-first) and `append_pr_summary.py` in v2. |
+| **Telos Authority** | `oramasys/telos` | 🟢 Standalone repo under Apache-2.0; Gate 1 behavior vectors; dedicated dialer. Core takes **no** Telos dependency (`oramasys/perpetua-core#7`, merge `c0795bce`, C0 `REJECT_CORE_TELOS_DEP`). | Health probing via Telos belongs in `oramasys/oramasys` composition, not a Core import. |
+| **Anamnesis Memory** | `oramasys/anamnesis` | 🟡 Open stack (not merged): GitHub `#1` (ledger, gate protocol, promotion) → `#2` (SQLite hash-chain) → `#3` (read-side retrieval). Confirmed open 2026-10-02. | Land `#1` with `#2`; then `#3`. Do not treat `#1` as merged. |
+| **PR Reporting Tooling** | `oramasys/oramasys` | 🟡 Plan completed ([`v1-to-v2-pr-body-migration.md`](../plans/v1-to-v2-pr-body-migration.md)). | Implement `report_pr.py` (comment-first) and `append_pr_summary.py` in v2. |
 | **Claude Model Governance** | `oramasys/alexandria` | 🟢 Canonical standard established (Sonnet 5 Medium default; Opus 5.5 High / Fable 5.1 escalation). | Enforce escalation decision template across all automated agent harnesses. |
 
 ---
@@ -248,6 +257,7 @@ The table below provides a unified ledger of what has been built versus what rem
 ## 10. Conclusion & Epistemic Trajectory
 
 `oramasys/alexandria` fulfills its ancient namesake not by gathering uncurated scrolls, but by establishing a **harmonized, verifiable, and immutable system of truth**. By grounding synthetic agent coordination in:
+
 - **Mathematical determinism** over probabilistic drift;
 - **Strict regime boundaries** over tangled monolithic codebases;
 - **Explicit model governance** (Sonnet 5 Medium baseline with human-gated Opus 5.5 High / Fable 5.1 escalation);

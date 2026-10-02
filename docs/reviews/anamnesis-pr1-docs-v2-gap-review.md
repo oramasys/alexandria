@@ -1,10 +1,12 @@
 > **Alexandria ingest:** 2026-09-25 · docs-only review copy · portable-memory scrubbed.
 
 # Anamnesis PR #1 vs Orama-System v2 Plans
+
 ## Recursive Gap Review and Recommended Next Steps
 
 Date: 2026-09-21
 Scope:
+
 - PR: `oramasys/anamnesis#1`
 - Feature branch: `feat/anamnesis-memory-building-blocks`
 - Reference plan: `docs/v2/31-security-harness-excellence-plan.md`
