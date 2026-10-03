@@ -181,7 +181,7 @@ graph LR
 
 ## 6. Frugality Engine & AI Model Routing
 
-To guarantee cost-effective, high-reliability execution, models are routed through a 7-tier dispatch ladder, now updated to the canonical Anthropic Claude release structure:
+To guarantee cost-effective, high-reliability execution, models are routed through a 7-tier dispatch ladder. The Tier 6 rows apply only on the Anthropic path. Harness-level model selection (Cursor / Grok Bot path versus Anthropic path, effort, fast mode, and the escalation token) is governed by [`docs/standards/model-governance.md`](../standards/model-governance.md):
 
 | Tier | Engine / Model | Cost (In / Out per 1M) | Core Roles |
 | :---: | :--- | :---: | :--- |
@@ -189,9 +189,9 @@ To guarantee cost-effective, high-reliability execution, models are routed throu
 | **Tier 5A** | `google/gemini-3.7-flash` (via Perplexity Agent API) | **$0.375 / $1.875** | Massive context ingestion (1M window), subagent parallel research, fast code transformation. |
 | **Tier 5B** | `xai/grok-4.6` (via Perplexity Agent API) | **$2.00 / $6.00** | Real-time world knowledge, live market/financial pulse, contrarian critique, deep reasoning. |
 | **Tier 5C** | `grok-4.6` (Direct xAI Fallback) | **$2.00 / $6.00** | Fallback if Perplexity Agent API is offline. Requires explicit `XAI_API_KEY`. |
-| **Tier 6A (Default)** | **`Claude Sonnet 5 Medium`** (`claude-sonnet-5`, Effort: `Medium`) | **Standard Frontier Rate** | **Standard Claude Default:** Daily planning, everyday complex agentic tasks, primary architecture review, and synthesis. |
-| **Tier 6B (Escalation)** | **`Claude Opus 5.5 High`** (`claude-opus-5-5`, Effort: `High`) | **Premium Frontier Rate ($4 / $20)** | **Gated Escalation:** Activated **ONLY** via explicit human-initiated request or human-gated / human-approved escalation for ambitious, complex challenges. |
-| **Tier 6C (Special)** | **`Claude Fable 5.1`** (`claude-fable-5-1`) | **Usage Credits ($10 / $50)** | **Credit-Gated Escalation:** Long-horizon frontier challenges. Permitted **ONLY** under explicit human request/approval and when budget and usage credits are verified. |
+| **Tier 6A (Default)** | **`Claude Sonnet 5.5 Medium`** (`claude-sonnet-5-5`, Effort: `medium`; legacy pin `claude-sonnet-5` allowed) | **$2 / $10** | **Anthropic-path default** (see the standard): daily planning, everyday complex agentic tasks, primary architecture review, and synthesis. |
+| **Tier 6B (Escalation)** | **`Claude Opus 5.5 High`** (`claude-opus-5-5`, Effort: `high`) | **$4 / $20** | **Human-gated escalation (Anthropic path):** only with an escalation token (S-AuthZ bearer plus a fresh signed HITL approval; see the standard) for ambitious, complex challenges. |
+| **Tier 6C (Special)** | **`Claude Fable 5.1`** (`claude-fable-5-1`) | **$10 / $50** (API); plan usage credits on claude.ai and Claude Code | **Human-gated, budget-capped escalation:** long-horizon frontier challenges. Only with an escalation token **and** a budget cap (`max_tokens` plus advisory `task_budget`; fail-closed cost guard; interactive only in Claude Code). |
 
 ### The 199k Token Cliff Guard
 
@@ -250,7 +250,7 @@ The table below provides a unified ledger of what has been built versus what rem
 | **Telos Authority** | `oramasys/telos` | 🟢 Standalone repo under Apache-2.0; Gate 1 behavior vectors; dedicated dialer. Core takes **no** Telos dependency (`oramasys/perpetua-core#7`, merge `c0795bce`, C0 `REJECT_CORE_TELOS_DEP`). | Health probing via Telos belongs in `oramasys/oramasys` composition, not a Core import. |
 | **Anamnesis Memory** | `oramasys/anamnesis` | 🟡 Open stack (not merged): GitHub `#1` (ledger, gate protocol, promotion) → `#2` (SQLite hash-chain) → `#3` (read-side retrieval). Confirmed open 2026-10-02. | Land `#1` with `#2`; then `#3`. Do not treat `#1` as merged. |
 | **PR Reporting Tooling** | `oramasys/oramasys` | 🟡 Plan completed ([`v1-to-v2-pr-body-migration.md`](../plans/v1-to-v2-pr-body-migration.md)). | Implement `report_pr.py` (comment-first) and `append_pr_summary.py` in v2. |
-| **Claude Model Governance** | `oramasys/alexandria` | 🟢 Canonical standard established (Sonnet 5 Medium default; Opus 5.5 High / Fable 5.1 escalation). | Enforce escalation decision template across all automated agent harnesses. |
+| **Model Governance (provider-agnostic)** | `oramasys/alexandria` → [`docs/standards/model-governance.md`](../standards/model-governance.md) | 🟡 Proposed: the harness selects the provider path. Cursor / Grok Bot default `cursor-grok-4.6-medium` (`grok-4.6`, medium effort, fast off); Anthropic default Sonnet 5.5 medium; Opus 5.5 High and Fable 5.1 (budget-capped) behind an escalation token. | Make agent launch templates pass model, effort, and fast explicitly; move to 🟢 once launches comply. |
 
 ---
 
@@ -260,7 +260,7 @@ The table below provides a unified ledger of what has been built versus what rem
 
 - **Mathematical determinism** over probabilistic drift;
 - **Strict regime boundaries** over tangled monolithic codebases;
-- **Explicit model governance** (Sonnet 5 Medium baseline with human-gated Opus 5.5 High / Fable 5.1 escalation);
+- **Explicit, provider-agnostic model governance** (the harness selects the provider path; medium effort with fast off by default; escalation only with an escalation token, and budget caps on every path);
 - **Zero-leak privacy** over naive exposure; and
 - **The Amplifier Principle** as our permanent ethical North Star,
 
