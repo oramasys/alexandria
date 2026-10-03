@@ -13,6 +13,7 @@ migration is explicitly scheduled; Alexandria receives curated copies.
 | [`architecture/`](architecture/) | Cross-repo migration architecture & lesson-capture contracts |
 | [`plans/`](plans/) | Executable migration plans (not yet necessarily shipped) |
 | [`reviews/`](reviews/) | Gap reviews and master synthesis |
+| [`standards/`](standards/) | Cross-cutting standards (model governance) |
 | [`notes/`](notes/) | Short factual status notes |
 
 ## 2026-09-25 ingest set
@@ -25,6 +26,10 @@ migration is explicitly scheduled; Alexandria receives curated copies.
 
 - [`plans/v1-to-v2-pr-body-migration.md`](plans/v1-to-v2-pr-body-migration.md) — PR reporting tools → `oramasys/oramasys` (comment-first)
 - [`plans/perpetua-core-health-probe-telos-migration.md`](plans/perpetua-core-health-probe-telos-migration.md) — SUPERSEDED by perpetua-core #7 (C0 `REJECT_CORE_TELOS_DEP`); historical `health_probe()` plan retained
+
+### Standards
+
+- [`standards/model-governance.md`](standards/model-governance.md) — provider-agnostic model governance: Cursor / Grok Bot path (default `cursor-grok-4.6-medium`), Anthropic path, escalation token (🟡 proposed)
 
 ### Reviews
 
