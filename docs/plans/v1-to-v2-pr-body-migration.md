@@ -157,10 +157,11 @@ badly:
 
 ---
 
-## Claude Model Governance & Execution Routing (2026-09-25 Standard)
+## Model governance
 
-All execution, evaluation, synthesis, and verification workflows under this plan adhere to the canonical Anthropic Claude routing hierarchy:
-
-- **Baseline / Default Execution:** **Claude Sonnet 5 (Medium effort)** (`claude-sonnet-5`). Standard everyday planning, linting, review, code modification, and automated verification tasks MUST dispatch to Sonnet 5 Medium by default.
-- **Escalation Path A — Deep Reasoning / Complex Architecture:** **Claude Opus 5.5 (High effort)** (`claude-opus-5-5`). Permitted **ONLY** under an explicit human-initiated request or an authenticated, human-gated / human-approved agentic escalation token (e.g. following a documented evaluation or confidence failure in Sonnet 5).
-- **Escalation Path B — Long-Horizon Agentic Hard Problems:** **Claude Fable 5.1** (`claude-fable-5-1`). Permitted **ONLY** under direct human command or human-approved escalation, and strictly when runtime budget guards allow and account usage credits are enabled.
+Model selection for work under this plan follows the provider-agnostic standard in
+[`docs/standards/model-governance.md`](../standards/model-governance.md).
+The harness selects the provider path: Cursor / Grok Bot (default `cursor-grok-4.6-medium`,
+medium effort, fast off) or Anthropic (default Claude Sonnet 5.5 at medium effort).
+Escalation needs an escalation token as defined there, and Fable also needs a budget cap.
+This section replaced the earlier Claude-only governance text on 2026-10-03.
