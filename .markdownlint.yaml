@@ -1,0 +1,22 @@
+# markdownlint for Alexandria (docs-only). Default rules stay on; relax
+# only where this corpus is structurally long-form.
+
+# Prose, mermaid, and tables routinely exceed 80 columns.
+MD013:
+  line_length: 9999
+  code_blocks: false
+  tables: false
+  headings: false
+  stern: false
+
+# Ingest copies start with an Alexandria banner blockquote, then H1.
+MD041: false
+
+# Gap reviews reuse "Status: …" headings across independent sections.
+MD024: false
+
+# Compact `|---|` separator rows are valid CommonMark.
+MD060: false
+
+# Historical reviews skip unused heading levels (H1 → H3 subsection lists).
+MD001: false

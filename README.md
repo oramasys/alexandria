@@ -32,6 +32,9 @@ across:
 
 - **2026-09-01:** Repository created (public, MIT-licensed, matching the
   other `oramasys/*` repos). No content migrated.
+- **2026-09-25:** First curated docs ingest under [`docs/`](docs/) — PT-agent
+  migration architecture, governance plans, Anamnesis gap review, and master
+  synthesis (docs-only; portable-memory scrubbed). See [`docs/README.md`](docs/README.md).
 - **Not scheduled:** the full `docs/v2/` → `alexandria` migration. When it
   happens, `orama-system/docs/v2/` is expected to remain fully intact as
   historical source — this repo receives copies, not a destructive move.
