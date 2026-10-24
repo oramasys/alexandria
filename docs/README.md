@@ -29,7 +29,7 @@ migration is explicitly scheduled; Alexandria receives curated copies.
 
 ### Standards
 
-- [`standards/model-governance.md`](standards/model-governance.md) — provider-agnostic model governance: Cursor / Grok Bot path (default `cursor-grok-4.6-medium`), Anthropic path, escalation token (🟡 proposed)
+- [`standards/model-governance.md`](standards/model-governance.md) — provider-agnostic model governance: supplements repository routing policies; Cursor / Grok Bot path (default `cursor-grok-4.7-medium`), Anthropic path, escalation approval regimes and token (🟡 proposed)
 
 ### Reviews
 

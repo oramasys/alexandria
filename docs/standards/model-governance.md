@@ -4,6 +4,7 @@
 > Vendor facts last checked against vendor docs and the Cursor Cloud Agents model catalog on **2026-10-03**.
 > This is the one source for model selection rules in the oramasys constellation.
 > Plans and reviews link here and do not restate model ids.
+> Reconciled with [orama-system PR #381](https://github.com/diazMelgarejo/orama-system/pull/381) on **2026-10-24**: outdated Cursor ids refreshed, the [relationship to repository routing policies](#relationship-to-repository-routing-policies) stated, and [escalation approval regimes](#escalation-approval-regimes) added.
 
 ## Precedence
 
@@ -16,21 +17,31 @@
 4. Agents never escalate, raise effort, turn on fast mode, or switch providers on their own.
 5. If the path is unclear, use that harness's default, do not escalate, and report the ambiguity.
 
+## Relationship to repository routing policies
+
+Operator ruling, 2026-10-24: this standard **supplements** each repository's existing routing policy. It never supplants it.
+
+- A repository's own tier policy stays the primary rule for choosing a model tier by complexity, risk, and budget. In orama-system that is [`.cursor/commands/model-route.md`](https://github.com/diazMelgarejo/orama-system/blob/160ec03697bbd63e9673a1ba6fe3431e70e56bcf/.cursor/commands/model-route.md), [`.cursor/rules/common-performance.mdc`](https://github.com/diazMelgarejo/orama-system/blob/160ec03697bbd63e9673a1ba6fe3431e70e56bcf/.cursor/rules/common-performance.mdc), the MODE 3 tiering in [`claude-code-workflow-canonical.md`](https://github.com/diazMelgarejo/orama-system/blob/160ec03697bbd63e9673a1ba6fe3431e70e56bcf/bin/orama-system/references/claude-code-workflow-canonical.md), and the tiers in the [cursor-agent skill](https://github.com/diazMelgarejo/orama-system/blob/160ec03697bbd63e9673a1ba6fe3431e70e56bcf/bin/orama-system/skills/cursor-agent/SKILL.md).
+- This standard adds what those policies do not carry: the **fallback** when the tier logic fails or has no verifiable criteria (the harness default or an allowed alternative below, never a self-escalation), the **alternate paths** for harnesses other than the one a policy was written for, and the **gates** on escalated models and settings.
+- When a vendor ships a newer model, downstream policies refresh the outdated ids in place. They do not rewrite the policy text around them.
+- Downstream pin: orama-system [`docs/standards/model-governance.md`](https://github.com/diazMelgarejo/orama-system/blob/160ec03697bbd63e9673a1ba6fe3431e70e56bcf/docs/standards/model-governance.md), with the machine-readable [`config/model-governance.yml`](https://github.com/diazMelgarejo/orama-system/blob/160ec03697bbd63e9673a1ba6fe3431e70e56bcf/config/model-governance.yml) and checker [`src/orama_system/model_governance.py`](https://github.com/diazMelgarejo/orama-system/blob/160ec03697bbd63e9673a1ba6fe3431e70e56bcf/src/orama_system/model_governance.py).
+
 This standard governs which model an **agent harness** runs. It does not reorder the runtime frugality ladder (local tiers first, paid tiers last) in [`../reviews/master-review-and-synthesis.md` §6](../reviews/master-review-and-synthesis.md#6-frugality-engine--ai-model-routing). Both apply.
 
 ## Cursor / Grok Bot path
 
-**Rule: every Cursor model runs at medium effort with fast off**, unless the operator explicitly asks for something else. Set both explicitly on every launch. Cursor's own defaults differ: Grok 4.6 defaults to high effort, and fast is the default speed tier on Pro and above.
+**Rule: every Cursor model runs at medium effort with fast off**, unless the operator explicitly asks for something else. Set both explicitly on every launch. Cursor's own defaults differ: Grok models have defaulted to high effort (checked for Grok 4.6), and fast is the default speed tier on Pro and above. Re-check exact launch ids with `cursor-agent models`, because Cursor renames them between releases.
 
 Cursor usage labels (what the usage dashboard shows) are not always launch ids (what a Cloud Agents launch passes). Map them as follows:
 
 | Usage label | Cloud Agents launch id | Launch parameters | Status and gate |
 | --- | --- | --- | --- |
-| `cursor-grok-4.6-medium` | `grok-4.6` | `{effort: medium, fast: false}` | **Default** for agents and coding. No gate. |
+| `cursor-grok-4.7-medium` | `grok-4.7` | `{effort: medium, fast: false}` | **Default** for agents and coding. No gate. (Refreshed 2026-10-24 from `grok-4.6`.) |
 | `composer-2.5` | `composer-2.5` | `{fast: false}` (no effort parameter exists) | Allowed alternative. No gate. |
 | `composer-2.5-fast` | `composer-2.5` | `{fast: true}` | Only on the operator's explicit request. |
-| `grok-4.7-medium` | `grok-4.7` | `{reasoning_effort: medium, fast: false}` | Allowed only with an [escalation token](#escalation-token). |
-| `grok-4.7` | `grok-4.7` | must be set as in the row above | The label has no effort suffix, so the effort is unconfirmed. Review the run. |
+| `gpt-5.6-terra` | `gpt-5.6-terra` | `{effort: medium, fast: false}` | Allowed alternative on the operator's explicit pick. No gate. |
+| `grok-4.7` | `grok-4.7` | must be set as in the default row | The label has no effort suffix, so the effort is unconfirmed. Review the run. |
+| `cursor-grok-4.6-medium` | `grok-4.6` | none | **Outdated.** Superseded by `grok-4.7` on 2026-10-24. Never launch or default to `grok-4.6`. |
 | `auto` | `default` or `auto` | none | **Editor only**, for interactive work. Never for agent work. |
 | `cursor-grok-4.5-medium` | `grok-4.5` | none | **Banned.** Historical label only. Never launch or default to `grok-4.5`. |
 | `grok-bot-default`, `grok-bot-automation` | none | none | Grok Bot usage labels, **not launchable ids**. See the Grok Bot note. |
@@ -64,7 +75,7 @@ Notes:
 
 ## Direct-xAI path (optional)
 
-Runtime code may call xAI directly with `grok-4.6` and `reasoning_effort: "medium"`, set explicitly (the vendor default is `high`).
+Runtime code may call xAI directly with `grok-4.6` and `reasoning_effort: "medium"`, set explicitly (the vendor default is `high`). The Cursor path superseded `grok-4.6` with `grok-4.7` on 2026-10-24. Refresh this pin the same way once the xAI model list and pricing confirm `grok-4.7` for direct calls; absence from a search is not evidence either way.
 
 - The 199k-token cliff guard in the master review §6 applies.
 - The runtime frugality ladder's budget approval for paid tiers applies.
@@ -96,7 +107,21 @@ Runtime code may call xAI directly with `grok-4.6` and `reasoning_effort: "mediu
 
 **Record.** Post the approval text and a pointer to its proof (signed commit SHA, signature file, or event id) on the PR or issue. Never post the bearer or any key material.
 
-**Until enforcement lands.** Until the control plane checks escalation tokens automatically, agents refuse an escalated model or setting unless a proof reference is supplied, and they report the refusal.
+**Until enforcement lands.** Until the control plane checks escalation tokens automatically, the interim approval in [Escalation approval regimes](#escalation-approval-regimes) applies: agents refuse an escalated model or setting unless that approval is recorded, and they report the refusal.
+
+## Escalation approval regimes
+
+Operator ruling, 2026-10-24. A proof cannot be demanded where nothing can issue or verify it, so the approval an escalation needs depends on whether the **escalation grant mechanism** exists. It exists only when both of these hold, and both can be checked in the repository that launches the agent:
+
+1. The launch gate has a production caller at the launch boundary (in orama-system, `assert_launch_allowed`; today it has none).
+2. The control plane verifies the S-AuthZ bearer and the signed HITL approval described in [Escalation token](#escalation-token).
+
+| Regime | When | What approves Opus, Fable, or another escalated setting |
+| --- | --- | --- |
+| 1, interim | Either condition is unmet (**current state**) | An explicit operator confirmation in the session (for example an `AskUserQuestion` answer), recorded on the PR or issue with the model, effort, fast setting, task, and (for Fable) the budget cap. It is a human decision, not a token, and an agent never supplies it for itself. |
+| 2, enforced | Both conditions are met | The escalation token, verified by the control plane. A chat confirmation alone no longer approves. |
+
+The switch between regimes is a code change (a production caller and a verifier), not a config flag, environment variable, or note, so an agent cannot flip it. Neither regime lets an agent escalate on its own. The orama-system pin states the same rule in [Escalation approval regimes](https://github.com/diazMelgarejo/orama-system/blob/160ec03697bbd63e9673a1ba6fe3431e70e56bcf/docs/standards/model-governance.md#escalation-approval-regimes).
 
 ## Shared invariants
 
@@ -111,7 +136,7 @@ Runtime code may call xAI directly with `grok-4.6` and `reasoning_effort: "mediu
 The status moves from 🟡 to 🟢 only when all of the following hold:
 
 - Agent launches from Cursor and Grok Bot pass model and parameters explicitly.
-- The usage dashboard shows only allowed labels (`cursor-grok-4.6-medium`, `composer-2.5`, or labels covered by an escalation token).
+- The usage dashboard shows only allowed labels (`cursor-grok-4.7-medium`, `composer-2.5`, `gpt-5.6-terra` on an operator pick, or labels covered by an approval under the current [regime](#escalation-approval-regimes)).
 - Claude Code managed settings carry the defaults and denials above.
 
 ## Prior decisions this standard follows
@@ -135,7 +160,17 @@ Repository-relative paths:
 - orama-system `docs/v2/49-peer-mesh-auth-tls-v2-plan.md`: the bearer is always registered and always last, and the mesh never stops working because of an auth change.
 - orama-system `docs/v2/51-security-sentinel-orbit-passkey-mcp.md`: passkey (WebAuthn) human approval bound to the action.
 - orama-system `docs/v2/70-portal-knowledge-hitl-development-ladder.md`: the bearer is required with no loopback exemption.
+- orama-system [PR #381](https://github.com/diazMelgarejo/orama-system/pull/381): supplement, never supplant, repository routing policies; refresh outdated ids only; escalation approval regimes (operator rulings, 2026-10-24).
 - oramasys/oramasys `README.md` (S-AuthZ section): the bearer is required on protected routes, the default bind is loopback, and optional providers are off by default and never replace local secrets.
+
+## Downstream decisions to ratify here
+
+Recorded in orama-system [PR #381](https://github.com/diazMelgarejo/orama-system/pull/381) and listed for the operator to ratify into this standard. They are not yet part of it.
+
+- **Effort ceiling.** `xhigh` and `max` are refused on every harness path, even with matching approval metadata (orama pin, "Effort ceiling").
+- **Planning Opus.** A harness-classified planning launch may use Opus 5.5 at medium or high without a per-use approval; non-planning Opus keeps the approval, with medium as its candidate default (orama pin, "What orama must follow").
+- **Role selection.** `plan_launch` returns the requested launch, the immediately permitted fallback, and an approval candidate; it never executes a gated candidate (orama pin, "Role selection contract").
+- **Decision record.** Perpetua-Tools `.agent/memory` keeps the reasoning behind these rulings ([PR #461](https://github.com/diazMelgarejo/Perpetua-Tools/pull/461)).
 
 ## Vendor sources (checked 2026-10-03)
 

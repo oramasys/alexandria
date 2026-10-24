@@ -161,7 +161,7 @@ badly:
 
 Model selection for work under this plan follows the provider-agnostic standard in
 [`docs/standards/model-governance.md`](../standards/model-governance.md).
-The harness selects the provider path: Cursor / Grok Bot (default `cursor-grok-4.6-medium`,
-medium effort, fast off) or Anthropic (default Claude Sonnet 5.5 at medium effort).
-Escalation needs an escalation token as defined there, and Fable also needs a budget cap.
+The harness selects the provider path: Cursor / Grok Bot (default `cursor-grok-4.7-medium`,
+medium effort, fast off; refreshed from `grok-4.6` on 2026-10-24) or Anthropic (default Claude Sonnet 5.5 at medium effort).
+Escalation needs the approval its [regime](../standards/model-governance.md#escalation-approval-regimes) requires (today an operator confirmation; the escalation token once enforcement lands), and Fable also needs a budget cap.
 This section replaced the earlier Claude-only governance text on 2026-10-03.
